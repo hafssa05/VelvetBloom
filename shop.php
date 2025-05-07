@@ -1,11 +1,33 @@
 <?php
 session_start();
 $conn = new mysqli("localhost", "root", "", "VelvetBloom_db");
-$clientLoggedIn = isset($_SESSION['client']);
 
+// Check if client is logged in
+$clientLoggedIn = isset($_SESSION['client']);
+$client_id = $_SESSION['client_id'] ?? null;
+
+// Handle "Add to Cart" if logged in
+if (isset($_GET['add']) && $clientLoggedIn) {
+    $id_materiel = intval($_GET['add']);
+    $check = $conn->query("SELECT * FROM commande_client WHERE id_client = $client_id AND id_materiel = $id_materiel");
+
+    if ($check->num_rows > 0) {
+        // If already exists, just increase quantity
+        $conn->query("UPDATE commande_client SET quantite = quantite + 1 WHERE id_client = $client_id AND id_materiel = $id_materiel");
+    } else {
+        // Else, insert new row
+        $stmt = $conn->prepare("INSERT INTO commande_client (id_client, id_materiel, quantite) VALUES (?, ?, 1)");
+        $stmt->bind_param("ii", $client_id, $id_materiel);
+        $stmt->execute();
+        $stmt->close();
+    }
+    header("Location: shop.php");
+    exit();
+}
+
+// Load products
 $products = $conn->query("SELECT * FROM materiel");
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,10 +49,11 @@ $products = $conn->query("SELECT * FROM materiel");
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .logo {
+    .logo a {
       font-weight: bold;
       font-size: 24px;
       color: #a0522d;
+      text-decoration: none;
     }
 
     .nav-links {
@@ -96,20 +119,20 @@ $products = $conn->query("SELECT * FROM materiel");
       color: #5a3e36;
     }
 
-    .product-card form {
+    .shop-button {
+      display: inline-block;
+      background-color: #a0522d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      text-decoration: none;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
       margin-top: 10px;
     }
 
-    .product-card button {
-      background-color: #a0522d;
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 25px;
-      cursor: pointer;
-    }
-
-    .product-card button:hover {
+    .shop-button:hover {
       background-color: #7b3f1d;
     }
   </style>
@@ -142,10 +165,11 @@ $products = $conn->query("SELECT * FROM materiel");
         <h3><?= $row['produit'] ?></h3>
         <p><?= $row['caracteristique'] ?></p>
         <span><?= $row['prix'] ?> DH</span>
-        <form method="POST" action="<?= $clientLoggedIn ? 'add_to_cart.php' : 'client_auth.php' ?>">
-          <input type="hidden" name="id_materiel" value="<?= $row['id_materiel'] ?>">
-          <button type="submit"><?= $clientLoggedIn ? 'Add to Cart' : 'Buy Now' ?></button>
-        </form>
+        <?php if ($clientLoggedIn): ?>
+          <a href="shop.php?add=<?= $row['id_materiel'] ?>" class="shop-button">Add to Cart</a>
+        <?php else: ?>
+          <a href="client_auth.php" class="shop-button"> Buy Now</a>
+        <?php endif; ?>
       </div>
     <?php endwhile; ?>
   </div>
