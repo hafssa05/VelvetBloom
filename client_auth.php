@@ -12,19 +12,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['login_password'];
 
         $check = $conn->query("SELECT * FROM client WHERE email='$email'");
-if ($check->num_rows === 1) {
-    $user = $check->fetch_assoc();
-    if (password_verify($password, $user['password'])) {
-        $_SESSION['client'] = $user['email'];
-        header("Location: index.php#shop"); // Redirect directly to shop
-        exit();
-    } else {
-        $loginError = "Invalid email or password.";
-    }
-} else {
-    $loginError = "Invalid email or password.";
-}
-
+        if ($check->num_rows === 1) {
+            $user = $check->fetch_assoc();
+            if (password_verify($password, $user['password'])) {
+                $_SESSION['client'] = $user['email'];
+                header("Location: shop.php"); // Redirect directly to shop
+                exit();
+            } else {
+                $loginError = "Invalid email or password.";
+            }
+        } else {
+            $loginError = "Invalid email or password.";
+        }
     }
 
     if (isset($_POST['signup'])) {
@@ -39,7 +38,16 @@ if ($check->num_rows === 1) {
         } else {
             $insert = $conn->query("INSERT INTO client (nom, email, password, adresse) VALUES ('$name', '$email', '$password', '$address')");
             if ($insert) {
-                $signupSuccess = "Account created! You can now log in.";
+                $_SESSION['client'] = $email;
+
+                // Optional: retrieve client ID if you need it
+                $clientResult = $conn->query("SELECT id_client FROM client WHERE email='$email'");
+                if ($clientRow = $clientResult->fetch_assoc()) {
+                    $_SESSION['client_id'] = $clientRow['id_client'];
+                }
+
+                header("Location: shop.php");
+                exit();
             } else {
                 $signupError = "Something went wrong. Try again.";
             }
@@ -235,7 +243,7 @@ if ($check->num_rows === 1) {
   <a href="index.php" class="logo-button">Velvet Bloom</a>
   <ul class="nav-links">
     <li><a href="client_auth.php">Sign up</a></li>
-    <li><a href="#shop">Shop</a></li>
+    <li><a href="shop.php">Shop</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>

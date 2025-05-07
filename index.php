@@ -553,7 +553,7 @@
   <a href="#home" class="logo-button">Velvet Bloom</a>
   <ul class="nav-links">
     <li><a href="client_auth.php">Sign up</a></li>
-    <li><a href="#shop">Shop</a></li>
+    <li><a href="shop.php">Shop</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
