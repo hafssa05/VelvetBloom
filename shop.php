@@ -98,8 +98,11 @@ $products = $conn->query("SELECT * FROM materiel");
     .product-card img {
       width: 100%;
       height: 240px;
-      object-fit: cover;
       border-radius: 10px;
+  object-fit: contain; /* show full image */
+  border-radius: 10px; /* Match the card's border radius */
+  margin-bottom: 15px;
+
     }
 
     .product-card h3 {
