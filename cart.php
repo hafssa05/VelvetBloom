@@ -13,8 +13,7 @@ $confirmationMessage = '';
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['validate_order'])) {
     // You can insert logic here to move cart to 'orders' table if needed
 
-    // Clear the cart
-    $conn->query("DELETE FROM commande_client WHERE id_client = $id_client");
+    $conn->query("UPDATE commande_client SET statut = 'confirmed' WHERE id_client = $id_client AND statut = 'Added to cart'");
 
     // Confirmation message
     $confirmationMessage = "✅ Votre commande a été validée avec succès !";
@@ -38,7 +37,8 @@ if (isset($_GET['remove'])) {
 $sql = "SELECT cc.id_commande, m.produit, m.prix, cc.quantite
         FROM commande_client cc
         JOIN materiel m ON cc.id_materiel = m.id_materiel
-        WHERE cc.id_client = $id_client";
+        WHERE cc.id_client = $id_client 
+        AND statut = 'Added to cart'";
 $result = $conn->query($sql);
 ?>
 

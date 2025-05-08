@@ -12,7 +12,7 @@ $id_client = $_SESSION['client_id'];
 $sql = "SELECT cc.date_commande, m.produit, m.prix, cc.quantite
         FROM commande_client cc
         JOIN materiel m ON cc.id_materiel = m.id_materiel
-        WHERE cc.id_client = $id_client AND cc.date_commande IS NOT NULL
+        WHERE cc.id_client = $id_client AND cc.date_commande IS NOT NULL AND statut = 'Confirmed'
         ORDER BY cc.date_commande DESC";
 $result = $conn->query($sql);
 ?>

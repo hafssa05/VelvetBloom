@@ -170,7 +170,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <a href="index.php" class="logo-button">Velvet Bloom</a>
   <ul class="nav-links">
     <li><a href="client_auth.php">Sign up</a></li>
-    <li><a href="#shop">Shop</a></li>
+    <!-- Updated Shop link -->
+    <li><a href="<?php echo isset($_SESSION['client']) ? 'shop.php' : 'client_auth.php'; ?>">Shop</a></li>
   </ul>
 </nav>
 

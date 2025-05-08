@@ -553,7 +553,7 @@
   <ul class="nav-links">
     <li><a href="client_auth.php">Sign up</a></li>
     <li><a href="shop.php">Shop</a></li>
-    <li><a href="#about">About</a></li>
+    <li><a href="aboutus.php">About</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
 </nav>
@@ -564,7 +564,10 @@
     <div class="left-text">
       <h1>Stylish looks await</h1>
       <p>Discover your next outfit</p>
-      <button class="cta-button">View products</button>
+      <a href="client_auth.php">
+  <button class="cta-button">View products</button>
+</a>
+
     </div>
   </div>
 
@@ -585,7 +588,7 @@ $result = $conn->query("SELECT * FROM materiel ORDER BY id_materiel DESC LIMIT 4
 <div class="shop-scroll">
   <?php while ($row = $result->fetch_assoc()): ?>
     <div class="shop-card">
-      <img src="<?= htmlspecialchars($row['image']) ?>" alt="<?= htmlspecialchars($row['produit']) ?>">
+      <img src="img/<?= htmlspecialchars($row['image']) ?>" alt="<?= htmlspecialchars($row['produit']) ?>">
       <h3><?= htmlspecialchars($row['produit']) ?></h3>
       <p><?= htmlspecialchars($row['caracteristique']) ?></p>
       <span><?= htmlspecialchars($row['prix']) ?> DH</span>
@@ -615,7 +618,10 @@ $result = $conn->query("SELECT * FROM materiel ORDER BY id_materiel DESC LIMIT 4
 Tired of clothes that never fit right, we imagined something better: elegant pieces, made with love, and a special touch — tailored just for you.
 
 Because at Velvet Bloom, we believe fashion isn’t one-size-fits-all. It’s one-size-fits-you.</p>
+      <a href="aboutus.php">
       <button class="about-button">✨ Read Our Story</button>
+      </a>
+
     </div>
   </div>
 </section>

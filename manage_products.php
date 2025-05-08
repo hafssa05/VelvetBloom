@@ -16,12 +16,56 @@ if (isset($_GET['delete'])) {
   $conn->query("DELETE FROM materiel WHERE id_materiel = $id");
 }
 
+// Handle Editing
+if (isset($_GET['edit'])) {
+  $id = intval($_GET['edit']);
+  $product = $conn->query("SELECT * FROM materiel WHERE id_materiel = $id")->fetch_assoc();
+}
+
+// Handle Update Product
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_product'])) {
+  $id = intval($_POST['id']);
+  $produit = $_POST['produit'];
+  $prix = $_POST['prix'];
+  $caracteristique = $_POST['caracteristique'];
+  $image = $_FILES['image']['name'];
+  
+  // Handle image upload
+  if ($image) {
+    $target_dir = "img/";
+    $target_file = $target_dir . basename($_FILES["image"]["name"]);
+    move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
+  } else {
+    // If no new image is uploaded, retain the old image
+    $image = $product['image'];
+  }
+
+  // Update the product
+  $stmt = $conn->prepare("UPDATE materiel SET produit = ?, prix = ?, caracteristique = ?, image = ? WHERE id_materiel = ?");
+  $stmt->bind_param("ssssi", $produit, $prix, $caracteristique, $image, $id);
+  $stmt->execute();
+  $stmt->close();
+  header("Location: manage_products.php"); // Redirect after update
+  exit();
+}
+
 // Handle New Product
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_product'])) {
   $produit = $_POST['produit'];
   $prix = $_POST['prix'];
   $caracteristique = $_POST['caracteristique'];
-  $conn->query("INSERT INTO materiel (produit, prix, caracteristique) VALUES ('$produit', '$prix', '$caracteristique')");
+  $image = $_FILES['image']['name'];
+
+  // Handle image upload
+  $target_dir = "img/";
+  $target_file = $target_dir . basename($_FILES["image"]["name"]);
+  move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
+
+  // Insert new product
+  $stmt = $conn->prepare("INSERT INTO materiel (produit, prix, caracteristique, image) VALUES (?, ?, ?, ?)");
+  $stmt->bind_param("ssss", $produit, $prix, $caracteristique, $image);
+  $stmt->execute();
+  $stmt->close();
 }
 
 // Get Products
@@ -69,7 +113,7 @@ $result = $conn->query("SELECT * FROM materiel ORDER BY id_materiel DESC");
       color: #5a3e36;
     }
 
-    form input, form textarea {
+    form input, form textarea, form button, form select {
       padding: 10px;
       margin: 8px 0;
       width: 100%;
@@ -116,6 +160,7 @@ $result = $conn->query("SELECT * FROM materiel ORDER BY id_materiel DESC");
     .back-link:hover {
       text-decoration: underline;
     }
+
   </style>
 </head>
 <body>
@@ -131,6 +176,7 @@ $result = $conn->query("SELECT * FROM materiel ORDER BY id_materiel DESC");
       <th>Product</th>
       <th>Price (DH)</th>
       <th>Description</th>
+      <th>Image</th>
       <th>Action</th>
     </tr>
     <?php while ($row = $result->fetch_assoc()): ?>
@@ -139,19 +185,35 @@ $result = $conn->query("SELECT * FROM materiel ORDER BY id_materiel DESC");
         <td><?= htmlspecialchars($row['produit']) ?></td>
         <td><?= htmlspecialchars($row['prix']) ?></td>
         <td><?= htmlspecialchars($row['caracteristique']) ?></td>
+        <td><img src="img/<?= htmlspecialchars($row['image']) ?>" width="100" alt="<?= $row['produit'] ?>"></td>
         <td>
+          <a href="?edit=<?= $row['id_materiel'] ?>" class="delete-btn">Edit</a>
           <a href="?delete=<?= $row['id_materiel'] ?>" class="delete-btn" onclick="return confirm('Delete this product?')">Delete</a>
         </td>
       </tr>
     <?php endwhile; ?>
   </table>
 
-  <!-- Add Product Form -->
+  <!-- Edit Product Form -->
+  <?php if (isset($product)): ?>
+    <h3>Edit Product</h3>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="id" value="<?= $product['id_materiel'] ?>">
+      <input type="text" name="produit" value="<?= htmlspecialchars($product['produit']) ?>" required>
+      <input type="text" name="prix" value="<?= htmlspecialchars($product['prix']) ?>" required>
+      <textarea name="caracteristique" required><?= htmlspecialchars($product['caracteristique']) ?></textarea>
+      <input type="file" name="image">
+      <button type="submit" name="update_product">Update Product</button>
+    </form>
+  <?php endif; ?>
+
+  <!-- Add New Product Form -->
   <h3>Add New Product</h3>
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
     <input type="text" name="produit" placeholder="Product Name" required>
     <input type="text" name="prix" placeholder="Price in DH" required>
     <textarea name="caracteristique" placeholder="Product Description" required></textarea>
+    <input type="file" name="image" required>
     <button type="submit" name="add_product">Add Product</button>
   </form>
 </div>

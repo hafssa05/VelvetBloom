@@ -6,25 +6,31 @@ $conn = new mysqli("localhost", "root", "", "VelvetBloom_db");
 $clientLoggedIn = isset($_SESSION['client']);
 $client_id = isset($_SESSION['client_id']) ? intval($_SESSION['client_id']) : 0;
 
-
 // Handle "Add to Cart" if logged in
 if (isset($_GET['add']) && $clientLoggedIn) {
     $id_materiel = intval($_GET['add']);
-    $check = $conn->query("SELECT * FROM commande_client WHERE id_client = $client_id AND id_materiel = $id_materiel");
+    $check = $conn->query("SELECT * FROM commande_client WHERE id_client = $client_id AND id_materiel = $id_materiel AND statut = 'Added to cart'" );
 
     if ($check->num_rows > 0) {
         // If already exists, just increase quantity
         $conn->query("UPDATE commande_client SET quantite = quantite + 1 WHERE id_client = $client_id AND id_materiel = $id_materiel");
     } else {
-        // Else, insert new row
-        $stmt = $conn->prepare("INSERT INTO commande_client (id_client, id_materiel, quantite) VALUES (?, ?, 1)");
-        $stmt->bind_param("ii", $client_id, $id_materiel);
+        // Else, insert new row with the current date and statut as "Added to cart"
+        $stmt = $conn->prepare("INSERT INTO commande_client (id_client, id_materiel, quantite, date_commande, statut) VALUES (?, ?, 1, ?, ?)");
+        $current_date = date("Y-m-d");  // Current date in the format YYYY-MM-DD
+        $statut = "Added to cart";  // Statut value
+        $stmt->bind_param("iiss", $client_id, $id_materiel, $current_date, $statut);
         $stmt->execute();
         $stmt->close();
     }
+    
+    // Set a session variable to trigger the toast notification
+    $_SESSION['cart_notification'] = true;
+
     header("Location: shop.php");
     exit();
 }
+
 
 // Load products
 $products = $conn->query("SELECT * FROM materiel");
@@ -34,6 +40,9 @@ $products = $conn->query("SELECT * FROM materiel");
 <head>
   <meta charset="UTF-8">
   <title>Shop - Velvet Bloom</title>
+  <div id="toast" class="toast">
+  Item added to cart!
+</div>
   <style>
     body {
       margin: 0;
@@ -139,6 +148,31 @@ $products = $conn->query("SELECT * FROM materiel");
     .shop-button:hover {
       background-color: #7b3f1d;
     }
+
+    
+  .toast {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #00FF00;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+    opacity: 0;
+    transition: opacity 0.5s, bottom 0.5s;
+  }
+
+  .toast.show {
+    visibility: visible;
+    opacity: 1;
+    bottom: 50px;
+  }
   </style>
 </head>
 <body>
@@ -165,7 +199,7 @@ $products = $conn->query("SELECT * FROM materiel");
   <div class="products">
     <?php while ($row = $products->fetch_assoc()): ?>
       <div class="product-card">
-        <img src="<?= $row['image'] ?>" alt="<?= $row['produit'] ?>">
+        <img src="img/<?= $row['image'] ?>" alt="<?= $row['produit'] ?>">
         <h3><?= $row['produit'] ?></h3>
         <p><?= $row['caracteristique'] ?></p>
         <span><?= $row['prix'] ?> DH</span>
@@ -178,6 +212,19 @@ $products = $conn->query("SELECT * FROM materiel");
     <?php endwhile; ?>
   </div>
 </div>
-
+<script>
+  // Function to show the toast notification
+  function showToast() {
+    var toast = document.getElementById("toast");
+    toast.className = "toast show";
+    setTimeout(function() {
+      toast.className = toast.className.replace("show", "");
+    }, 3000); // Toast disappears after 3 seconds
+  }
+  <?php if (isset($_SESSION['cart_notification']) && $_SESSION['cart_notification']): ?>
+    showToast();
+    <?php unset($_SESSION['cart_notification']); ?> // Clear the session flag after showing the toast
+  <?php endif; ?>
+</script>
 </body>
 </html>

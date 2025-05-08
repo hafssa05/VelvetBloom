@@ -107,7 +107,7 @@ $adminName = $_SESSION['admin'];
     <div class="dashboard-links">
       <a href="manage_products.php">📦 Manage Products</a>
       <a href="manage_clients.php">👥 Manage Clients</a>
-      <a href="view_orders.php">📝 View Orders</a>
+      <a href="total_orders.php">📝 View Orders</a>
       <a href="logout.php">🚪 Logout</a>
     </div>
   </div>

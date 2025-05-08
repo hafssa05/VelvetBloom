@@ -18,20 +18,35 @@ $clientData = $query->fetch_assoc();
 $updateError = '';
 $updateSuccess = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
     $address = $_POST['address'];
+    $currentPassword = $_POST['password'];
+    $newPassword = $_POST['new_password'];
+    $confirmPassword = $_POST['confirm_password'];
 
-    if (!empty($_POST['password'])) {
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $updatePassword = ", password='$password'";
-    } else {
-        $updatePassword = '';
+    // Check if the current password matches the stored password
+    if (!empty($currentPassword)) {
+        if (!password_verify($currentPassword, $clientData['password'])) {
+            $updateError = "Current password is incorrect.";
+        } else {
+            // Validate new password and confirm password
+            if ($newPassword != $confirmPassword) {
+                $updateError = "New password and confirm password do not match.";
+            } else {
+                // Hash the new password
+                $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                $updatePassword = ", password='$hashedPassword'";
+            }
+        }
     }
 
-    $sql = "UPDATE client SET nom='$name', email='$email', adresse='$address' $updatePassword WHERE id_client='$client_id'";
+    // Update client address and password (if provided)
+    $sql = "UPDATE client SET adresse='$address' $updatePassword WHERE id_client='$client_id'";
     if ($conn->query($sql)) {
-        $_SESSION['client'] = $email;
+        // Refresh client data from the database
+        $query = $conn->query("SELECT * FROM client WHERE id_client = '$client_id'");
+        $clientData = $query->fetch_assoc();
+
+        // Set success message
         $updateSuccess = "Information updated successfully!";
     } else {
         $updateError = "Something went wrong. Please try again.";
@@ -144,24 +159,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
             outline: none;
         }
 
-        #update-email-form {
+        #update-address-form {
             display: none;
             margin-top: 20px;
         }
 
-        #update-email-form form {
+        #update-address-form form {
             display: grid;
             gap: 15px;
         }
 
-        #update-email-form input {
+        #update-address-form input {
             padding: 10px 14px;
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 15px;
         }
 
-        #update-email-form button {
+        #update-address-form button {
             padding: 12px;
             background-color: #a0522d;
             color: white;
@@ -171,7 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
             cursor: pointer;
         }
 
-        #update-email-form button:hover {
+        #update-address-form button:hover {
             background-color: #7b3f1d;
         }
 
@@ -209,11 +224,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
             <img src="img/default-profile-icon.png" alt="Default Icon" class="profile-img">
         </div>
         <div class="profile-info">
-            <div class="profile-box" onclick="toggleForm('email-form')">
+            <div class="profile-box">
                 <span>Email:</span>
                 <span><?= $clientData['email'] ?></span>
             </div>
-            <div class="profile-box" onclick="toggleForm('name-form')">
+            <div class="profile-box">
                 <span>Name:</span>
                 <span><?= $clientData['nom'] ?></span>
             </div>
@@ -225,21 +240,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     </div>
 
     <!-- Update Form (Hidden Initially) -->
-    <div id="update-email-form">
-        <h3>Update Your Information</h3>
+    <div id="update-address-form">
+        <h3>Update Your Address</h3>
         <form method="POST">
-            <div id="email-form" class="hidden">
-                <input type="email" name="email" value="<?= $clientData['email'] ?>" class="editable-field" required placeholder="New Email">
-            </div>
-            <div id="name-form" class="hidden">
-                <input type="text" name="name" value="<?= $clientData['nom'] ?>" class="editable-field" required placeholder="New Name">
-            </div>
             <div id="address-form" class="hidden">
                 <input type="text" name="address" value="<?= $clientData['adresse'] ?>" class="editable-field" required placeholder="New Address">
             </div>
-            <input type="password" name="password" class="editable-field" placeholder="Current Password (for security)">
-            <input type="password" name="new_password" class="editable-field" placeholder="New Password">
-            <input type="password" name="confirm_password" class="editable-field" placeholder="Confirm New Password">
+            <input type="password" name="password" class="editable-field" placeholder="Current Password (for security)" required>
+            <input type="password" name="new_password" class="editable-field" placeholder="New Password" required>
+            <input type="password" name="confirm_password" class="editable-field" placeholder="Confirm New Password" required>
             <button type="submit" name="update">Update Information</button>
         </form>
     </div>
@@ -247,17 +256,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
 
 <script>
     function toggleForm(formId) {
-        const forms = ['email-form', 'name-form', 'address-form'];
-        forms.forEach(function(id) {
-            const formElement = document.getElementById(id);
-            formElement.classList.add('hidden');
-        });
-
-        const currentForm = document.getElementById(formId);
-        currentForm.classList.remove('hidden');
+        // Only toggle visibility for address form
+        const addressForm = document.getElementById(formId);
+        addressForm.classList.remove('hidden');
 
         // Show update form
-        document.getElementById('update-email-form').style.display = 'block';
+        document.getElementById('update-address-form').style.display = 'block';
     }
 </script>
 
