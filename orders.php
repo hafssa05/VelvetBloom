@@ -22,6 +22,7 @@ $result = $conn->query($sql);
 <head>
   <meta charset="UTF-8">
   <title>Your Orders</title>
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <style>
     body {
       font-family: 'Poppins', sans-serif;

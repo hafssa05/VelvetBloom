@@ -33,6 +33,7 @@ $clients = $conn->query("SELECT * FROM client");
 <head>
   <meta charset="UTF-8">
   <title>Manage Clients</title>
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <style>
     body {
       font-family: 'Poppins', sans-serif;

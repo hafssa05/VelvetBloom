@@ -59,6 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
 <head>
     <meta charset="UTF-8">
     <title>Settings</title>
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
     <style>
         body {
             font-family: 'Poppins', sans-serif;

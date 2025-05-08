@@ -77,6 +77,7 @@ $result = $conn->query("SELECT * FROM materiel ORDER BY id_materiel DESC");
 <head>
   <meta charset="UTF-8">
   <title>Manage Products</title>
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <style>
     body {
       font-family: 'Poppins', sans-serif;

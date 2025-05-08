@@ -13,6 +13,7 @@ $adminName = $_SESSION['admin'];
 <head>
   <meta charset="UTF-8">
   <title>Admin Dashboard</title>
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <style>
     body {
       margin: 0;

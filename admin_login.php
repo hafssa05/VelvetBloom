@@ -29,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
   <title>Admin Login</title>
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <style>
     body {
       margin: 0;

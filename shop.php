@@ -40,6 +40,7 @@ $products = $conn->query("SELECT * FROM materiel");
 <head>
   <meta charset="UTF-8">
   <title>Shop - Velvet Bloom</title>
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <div id="toast" class="toast">
   Item added to cart!
 </div>
