@@ -9,6 +9,18 @@ if (!isset($_SESSION['client_id'])) {
 
 $id_client = $_SESSION['client_id'];
 
+$confirmationMessage = '';
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['validate_order'])) {
+    // You can insert logic here to move cart to 'orders' table if needed
+
+    // Clear the cart
+    $conn->query("DELETE FROM commande_client WHERE id_client = $id_client");
+
+    // Confirmation message
+    $confirmationMessage = "✅ Votre commande a été validée avec succès !";
+}
+
+
 // Update quantity
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_qty'])) {
     $id_commande = $_POST['id_commande'];
@@ -120,12 +132,89 @@ $result = $conn->query($sql);
       background-color: #7b3f1d;
     }
 
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 15px 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .logo-button {
+      color: #a0522d;
+      font-size: 24px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .logo-button:hover {
+      color: #7b3f1d;
+      background-color: #fff1ec;
+      border-radius: 50px;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #3e2c28;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #fce9e0;
+      color: #5a3e36;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .back-to-shop-btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 25px;
+      background-color: #a0522d;
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .back-to-shop-btn:hover {
+      background-color: #7b3f1d;
+    }
   </style>
 </head>
 <body>
 
+<!-- Navbar -->
+<nav class="navbar">
+  <!-- Clickable Velvet Bloom Logo -->
+  <a href="index.php" class="logo-button">Velvet Bloom</a> <!-- Link to home or wherever you want -->
+
+  <ul class="nav-links">
+    <li><a href="orders.php">Order History</a></li> <!-- Replace with actual link to order history -->
+    <li><a href="logout.php">Logout</a></li> <!-- Replace with actual logout script -->
+  </ul>
+</nav>
+
 <div class="container">
-  <h2>Your Shopping Cart</h2>
+<h2>Your Shopping Cart</h2>
+<?php if (!empty($confirmationMessage)): ?>
+  <p style="color: green; font-weight: bold;"><?= $confirmationMessage ?></p>
+<?php endif; ?>
+
 
   <?php if ($result->num_rows > 0): ?>
     <form method="POST">
@@ -163,11 +252,18 @@ $result = $conn->query($sql);
     </form>
 
     <div class="total">Total: <?= $total ?> DH</div>
-    <a class="validate-btn" href="#">Validate Order</a>
+    <form method="POST">
+  <input type="hidden" name="validate_order" value="1">
+  <button type="submit" class="validate-btn">Valider la commande</button>
+</form>
+
 
   <?php else: ?>
     <p>Your cart is empty.</p>
   <?php endif; ?>
+
+  <!-- Back to Shop button -->
+  <a href="shop.php" class="back-to-shop-btn">Back to Shop</a>
 
 </div>
 

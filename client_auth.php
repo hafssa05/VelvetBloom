@@ -16,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $user = $check->fetch_assoc();
             if (password_verify($password, $user['password'])) {
                 $_SESSION['client'] = $user['email'];
+                $_SESSION['client_id'] = $user['id_client']; // ✅ This is what was missing
                 header("Location: shop.php"); // Redirect directly to shop
                 exit();
             } else {
@@ -44,6 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $clientResult = $conn->query("SELECT id_client FROM client WHERE email='$email'");
                 if ($clientRow = $clientResult->fetch_assoc()) {
                     $_SESSION['client_id'] = $clientRow['id_client'];
+                    $_SESSION['client'] = $email;
+
                 }
 
                 header("Location: shop.php");

@@ -4,7 +4,8 @@ $conn = new mysqli("localhost", "root", "", "VelvetBloom_db");
 
 // Check if client is logged in
 $clientLoggedIn = isset($_SESSION['client']);
-$client_id = $_SESSION['client_id'] ?? null;
+$client_id = isset($_SESSION['client_id']) ? intval($_SESSION['client_id']) : 0;
+
 
 // Handle "Add to Cart" if logged in
 if (isset($_GET['add']) && $clientLoggedIn) {

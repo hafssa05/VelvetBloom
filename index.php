@@ -549,8 +549,7 @@
  
   <!-- Navbar -->
 <nav class="navbar">
-  <a href="admin_login.php" class="admin-link">🔐 Admin Access</a>
-  <a href="#home" class="logo-button">Velvet Bloom</a>
+  <a href="inddex.php" class="logo-button">Velvet Bloom</a>
   <ul class="nav-links">
     <li><a href="client_auth.php">Sign up</a></li>
     <li><a href="shop.php">Shop</a></li>
