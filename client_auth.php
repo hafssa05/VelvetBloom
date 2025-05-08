@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $check = $conn->query("SELECT * FROM client WHERE email='$email'");
         if ($check->num_rows === 1) {
             $user = $check->fetch_assoc();
-            if (password_verify($password, $user['password'])) {
+            if (md5($password) === $user['password']) {
                 $_SESSION['client'] = $user['email'];
                 $_SESSION['client_id'] = $user['id_client']; // ✅ This is what was missing
                 header("Location: shop.php"); // Redirect directly to shop
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['signup'])) {
         $name = $_POST['signup_name'];
         $email = $_POST['signup_email'];
-        $password = password_hash($_POST['signup_password'], PASSWORD_DEFAULT);
+        $password = md5($_POST['signup_password']);
         $address = $_POST['signup_address'];
 
         $exists = $conn->query("SELECT * FROM client WHERE email='$email'");
